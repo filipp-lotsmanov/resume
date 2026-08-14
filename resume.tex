@@ -1,0 +1,155 @@
+% Filipp Lotsmanov - CV
+% Compile: latexmk -pdf resume.tex   (or: make)
+% Engine MUST be pdflatex. \pdfgentounicode and \input{glyphtounicode} are
+% pdfTeX primitives and error under xelatex/lualatex.
+%
+% Wording, ordering and figures are exactly as in the original document.
+% Only typesetting was changed: single column, no letterspacing, real margins,
+% one font family.
+
+\documentclass[10pt,a4paper]{article}
+
+% ---------- extraction safety (these lines exist for parsers, not looks) ----------
+\usepackage[T1]{fontenc}          % required for correct text extraction
+\input{glyphtounicode}
+\pdfgentounicode=1                % writes explicit glyph->Unicode map into the PDF
+% ---------------------------------------------------------------------------------
+
+\usepackage[a4paper,margin=1.4cm]{geometry}
+\usepackage{charter}              % swap for XCharter if installed (better metrics)
+                                  % for sans, use: \usepackage[default]{sourcesanspro}
+\usepackage{microtype}            % safe; never add \textls or letterspace
+\usepackage[none]{hyphenat}       % no hyphen-broken keywords
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage[hidelinks,pdfusetitle]{hyperref}
+
+\author{Filipp Lotsmanov}
+\title{Filipp Lotsmanov - CV}
+
+\linespread{0.98}\selectfont
+\raggedright
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+
+% Headings are left-aligned. To centre them as in the original, add \filcenter
+% as the third argument: {\large\bfseries}{}{0em}{\filcenter}
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\vspace{-2pt}\hrule\vspace{2pt}]
+\titlespacing*{\section}{0pt}{5pt}{2pt}
+
+\setlist[itemize]{leftmargin=1.2em, itemsep=1pt, topsep=1pt, parsep=0pt,
+                  label=\textbullet}
+
+% wide separator: narrow spacing makes geometric extractors drop word breaks
+\newcommand{\sep}{\hspace{5pt}\textperiodcentered\hspace{5pt}}
+
+% #1 title  #2 dates  #3 subtitle  #4 location
+% \hfill keeps the line as one text run in reading order; tabular would not.
+\newcommand{\entry}[4]{%
+  \textbf{#1}\hfill #2\\
+  \textit{#3}\hfill \textit{#4}\par\vspace{1pt}}
+
+\newcommand{\skillrow}[2]{\textbf{#1:} #2\par}
+
+\begin{document}
+
+% ---------- header: name first, nothing above it ----------
+{\LARGE\bfseries FILIPP LOTSMANOV}\par\vspace{2pt}
+Applied Data Science \& AI Student\par\vspace{3pt}
+Breda, The Netherlands \sep +31 6 10588609 \sep lotsmanov.filipp@gmail.com\\
+\href{https://linkedin.com/in/filipp-lotsmanov}{linkedin.com/in/filipp-lotsmanov} \sep \href{https://github.com/filipp-lotsmanov}{github.com/filipp-lotsmanov}
+\par\vspace{3pt}
+
+\section*{EDUCATION}
+\entry{Breda University of Applied Sciences}{Sep 2024 -- Present}
+      {BSc Applied Data Science \& AI \sep 8.5/10 ($\approx$3.8 GPA)}
+      {Breda, Netherlands}
+
+\section*{PROFILE}
+Third-year Applied Data Science \& AI student on the Data Scientist and Data
+Engineer tracks. I train vision, sequence and reinforcement learning models,
+measure them on held-out data, and deploy them for real-time and on-device
+inference.
+
+\section*{TECHNICAL SKILLS}
+\skillrow{Languages}{Python, Go, SQL}
+\skillrow{Frameworks}{PyTorch, TensorFlow, Hugging Face Transformers, Stable Baselines3, Keras}
+\skillrow{Classical ML}{scikit-learn, XGBoost, statsmodels}
+\skillrow{Computer vision}{OpenCV, MediaPipe, torchvision, albumentations, U-Net}
+\skillrow{NLP \& speech}{SentencePiece/BPE, NLLB, faster-whisper, LangChain, FAISS}
+\skillrow{Optimisation \& serving}{TorchScript, quantisation, mixed-precision, FastAPI, Ollama, NVIDIA Jetson}
+\skillrow{MLOps \& infra}{MLflow, ClearML, Docker, Kubernetes, Azure, GitHub Actions, Airflow, Prometheus, Git, Portainer}
+\skillrow{Data \& analysis}{PostgreSQL, pandas, NumPy, GeoPandas, Shapely, Power BI}
+
+\section*{PROJECTS \& TECHNICAL WORK}
+
+\entry{Autonomous Root Inoculation}{Nov 2025 -- Jan 2026}{Individual Project, BUas}{}
+\begin{itemize}
+  \item CV and control system driving a lab robot to inoculate plant root tips:
+        U-Net segmentation with geodesic root-length measurement cut error from
+        37.6\% to 10.7\% sMAPE (Kaggle private leaderboard).
+  \item Benchmarked a PID controller (0.011--0.031 mm error) against a PPO agent
+        (\textasciitilde{}99\% at 1 mm); integrated pipeline hit 100\% success
+        across 50 targets at 0.646 mm mean accuracy.
+\end{itemize}
+
+\entry{Video Emotion Classification Pipeline}{Sep -- Nov 2025}{Group Project -- Media Client}{}
+\begin{itemize}
+  % model name is officially DeBERTa-v2 (lowercase v) if you want it corrected
+  \item Nine-stage video-to-emotion-timeline system for an external client brief;
+        fine-tuned DeBERTa-V2 on 428K samples to 0.8127 macro F1 held-out and
+        0.8865 on the external CARER benchmark.
+  \item Built a Transformer encoder-decoder from scratch; owned the transcription
+        and scene-detection stages.
+\end{itemize}
+
+% =========================== ADD BLOCK D ENTRY HERE ===========================
+% \entry{<project name>}{Feb -- Jun 2026}{Group Project, BUas -- NPEC}{}
+% \begin{itemize}
+%   \item <bullet>
+%   \item <bullet>
+% \end{itemize}
+% ==============================================================================
+
+\entry{NGT Sign Language Learning Platform}{Jan -- Apr 2026}{Group Project, BUas}{}
+\begin{itemize}
+  \item Real-time browser app teaching the Dutch fingerspelling alphabet:
+        ResidualMLP over 25 static classes at \textasciitilde{}95\% validation
+        accuracy, BiLSTM for dynamic letters at \textasciitilde{}92\%.
+  \item Served both models over a FastAPI WebSocket endpoint on MediaPipe hand
+        landmarks, with per-letter model routing.
+\end{itemize}
+
+\entry{Concurrent ETL Pipeline in Go}{May -- Aug 2026}{Personal Project}{}
+\begin{itemize}
+  \item Streaming CSV-into-PostgreSQL pipeline: 2.8--5.2 MB heap across a 2.3 GB,
+        27.6M-record file at \textasciitilde{}45k rec/sec.
+  \item 4.76\texttimes{} enrichment throughput via a goroutine worker pool;
+        live-Postgres tests gate the Docker build and CI.
+\end{itemize}
+
+\section*{COMPETITIONS}
+
+\entry{BrabantHack 2026 -- Winner, DEMCON Deep Tech Track}{Apr 2026}{Team of 3}{}
+\begin{itemize}
+  \item Predicted off-screen pedestrian positions from shadow imagery alone:
+        PyTorch ResNet-50 backbone fused with 19 hand-crafted geometric features,
+        reaching IoU 0.626 on the hidden test set.
+  \item Iterated 0.52 $\rightarrow$ 0.626 IoU on \textasciitilde{}11-min training
+        runs, delivering a TorchScript + FastAPI demo in the hackathon window.
+\end{itemize}
+
+\entry{HERE Turn-Restriction Validation Challenge}{May 2026}{Team of 3}{}
+\begin{itemize}
+  \item Built an XGBoost classifier separating real from erroneous map turn
+        restrictions from GPS probe traces, with GeoPandas/Shapely features in the
+        Belgian national grid; 0.81 F1 under stratified 5-fold CV.
+  \item Generated zero-match synthetic replicas of five proprietary HERE datasets
+        for safe collaboration, and excluded synthetic training sets where labels
+        leaked into route-derived violation features.
+\end{itemize}
+
+\section*{LANGUAGES}
+English (C2) \sep German (B1--B2) \sep Russian (B2) \sep Dutch (A2)
+
+\end{document}

@@ -1,0 +1,114 @@
+name: build-resume
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NAME: FILIPP LOTSMANOV
+  KEYWORDS: PyTorch,FastAPI,PostgreSQL,Docker,XGBoost,MediaPipe,TorchScript,Kubernetes,Data Science
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # needed for the commit-PDF step below
+    steps:
+      - uses: actions/checkout@v4
+
+      # Minimal set, derived from dpkg ownership of each required file.
+      # texlive-fonts-recommended is NOT optional: charter.sty lives in
+      # texlive-latex-base but the Charter Type 1 binaries (bchr8a.pfb) ship
+      # here. Without it the build succeeds and silently falls back to
+      # Computer Modern - which the font-family check would then catch.
+      - name: Install TeX Live
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            latexmk \
+            texlive-latex-base \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-fonts-recommended
+
+      - name: Assert font binaries are present
+        run: kpsewhich bchr8a.pfb
+
+      - name: Compile
+        run: |
+          latexmk -pdf -interaction=nonstopmode -halt-on-error -file-line-error resume.tex
+
+      - name: Fail on box warnings
+        run: |
+          if grep -qE 'Overfull|Underfull' resume.log; then
+            grep -E 'Overfull|Underfull' resume.log
+            echo "::error::overfull/underfull boxes present"
+            exit 1
+          fi
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Verify PDF invariants
+        run: |
+          uv run scripts/verify.py resume.pdf \
+            --name "$NAME" --max-font-families 2 --keywords "$KEYWORDS"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: resume-pdf
+          path: resume.pdf
+          if-no-files-found: error
+          retention-days: 90
+
+      # Commit the freshly compiled PDF back to main so the repo always holds
+      # the current version at a stable URL. Guards:
+      #   - only on a push to the main branch (never PRs, never tags: the
+      #     release job owns the PDF on tags)
+      #   - "[skip ci]" in the message stops this push retriggering the workflow
+      #   - "git diff --quiet" skips the commit entirely when the PDF is
+      #     byte-identical, so unrelated pushes don't create empty commits
+      - name: Commit compiled PDF to main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f resume.pdf
+          if git diff --cached --quiet; then
+            echo "PDF unchanged - nothing to commit"
+          else
+            git commit -m "build: update resume.pdf [skip ci]"
+            git push
+          fi
+
+      - name: Upload log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: latex-log
+          path: resume.log
+          if-no-files-found: ignore
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: resume-pdf
+      - name: Name the file after the tag
+        run: mv resume.pdf "Filipp_Lotsmanov_CV_${GITHUB_REF_NAME}.pdf"
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: Filipp_Lotsmanov_CV_*.pdf
+          generate_release_notes: true

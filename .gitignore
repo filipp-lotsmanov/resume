@@ -1,0 +1,39 @@
+# ---- LaTeX build artefacts ----
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*.nav
+*.snm
+*.vrb
+
+# ---- uv / Python (the verifier uses PEP 723, so no project files belong here) ----
+# Delete these two lines only if you deliberately made this a uv project.
+pyproject.toml
+.python-version
+uv.lock
+.venv/
+__pycache__/
+
+# ---- OS / editor noise ----
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+
+# ---- working images (previews, crops) ----
+*.png
+
+# ---- compiled PDF ----
+# Ignored because CI regenerates it as an artifact.
+# DELETE this line if you want the PDF committed for direct download from the repo.
+resume.pdf
