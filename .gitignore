@@ -34,6 +34,9 @@ desktop.ini
 *.png
 
 # ---- compiled PDF ----
-# Ignored because CI regenerates it as an artifact.
-# DELETE this line if you want the PDF committed for direct download from the repo.
+# Listed here so local builds never show up in `git status`. The PDF is still
+# committed to main: the build workflow force-adds it after a successful
+# verify, so the repo always serves the current version at a stable URL.
+# Removing this line would mean hand-committing local builds that CI has not
+# checked.
 resume.pdf

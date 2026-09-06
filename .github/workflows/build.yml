@@ -10,6 +10,13 @@ on:
 permissions:
   contents: read
 
+# Serialise runs per branch/tag. Without this, two pushes to main race on the
+# "Commit compiled PDF" step and the loser's push is rejected as non-fast-forward.
+# cancel-in-progress stays false: a cancelled run could be killed mid-push.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 env:
   NAME: FILIPP LOTSMANOV
   KEYWORDS: PyTorch,FastAPI,PostgreSQL,Docker,XGBoost,MediaPipe,TorchScript,Kubernetes,Data Science
@@ -80,12 +87,19 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Re-anchor on the current tip before committing, so the push is always
+          # a fast-forward. resume.pdf is tracked, so "reset --hard" would restore
+          # the old one - keep the freshly built file outside the work tree first.
+          cp resume.pdf "$RUNNER_TEMP/resume.pdf"
+          git fetch origin "$GITHUB_REF_NAME"
+          git reset --hard "origin/$GITHUB_REF_NAME"
+          cp "$RUNNER_TEMP/resume.pdf" resume.pdf
           git add -f resume.pdf
           if git diff --cached --quiet; then
             echo "PDF unchanged - nothing to commit"
           else
             git commit -m "build: update resume.pdf [skip ci]"
-            git push
+            git push origin "HEAD:$GITHUB_REF_NAME"
           fi
 
       - name: Upload log on failure

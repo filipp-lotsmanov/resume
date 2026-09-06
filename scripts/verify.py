@@ -15,7 +15,7 @@ is still a defect.
 
 Exits 1 if any check fails, so it can gate CI.
 
-Run:  uv run scripts/verify_pdf.py resume.pdf --name "Your Name"
+Run:  uv run scripts/verify.py resume.pdf --name "Your Name"
 """
 
 from __future__ import annotations
@@ -183,7 +183,9 @@ def main() -> int:
     ap.add_argument("--name", required=True, help="exact expected first line")
     ap.add_argument("--max-pages", type=int, default=1)
     ap.add_argument("--min-margin", type=float, default=1.2, help="cm")
-    ap.add_argument("--max-font-families", type=int, default=1)
+    # 2, not 1: any $...$ symbol pulls in a Computer Modern math font
+    # alongside the text family, and both Makefile and CI rely on that.
+    ap.add_argument("--max-font-families", type=int, default=2)
     ap.add_argument("--min-chars", type=int, default=1500)
     ap.add_argument("--keywords", default="",
                     help="comma-separated terms that must survive extraction")
