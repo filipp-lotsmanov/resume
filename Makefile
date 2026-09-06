@@ -7,7 +7,7 @@ TEX      := resume.tex
 PDF      := $(TEX:.tex=.pdf)
 NAME     := FILIPP LOTSMANOV
 KEYWORDS := PyTorch,FastAPI,PostgreSQL,Docker,XGBoost,MediaPipe,TorchScript,Kubernetes,Data Science
-VERIFY   := scripts/verify_pdf.py
+VERIFY   := scripts/verify.py
 
 .PHONY: all pdf verify watch clean tools
 
