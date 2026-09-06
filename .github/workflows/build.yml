@@ -42,7 +42,8 @@ jobs:
             texlive-latex-base \
             texlive-latex-recommended \
             texlive-latex-extra \
-            texlive-fonts-recommended
+            texlive-fonts-recommended \
+            poppler-utils
 
       - name: Assert font binaries are present
         run: kpsewhich bchr8a.pfb
@@ -68,6 +69,14 @@ jobs:
           uv run scripts/verify.py resume.pdf \
             --name "$NAME" --max-font-families 2 --keywords "$KEYWORDS"
 
+      # Rendered only after verify passes, so a defective PDF never produces a
+      # preview. 150 dpi gives a 1241x1754 px image (~440 KB) - sharp on a
+      # HiDPI screen, and GitHub scales it down to the README column width.
+      - name: Render page-1 preview
+        run: |
+          mkdir -p docs
+          pdftoppm -png -r 150 -singlefile resume.pdf docs/preview
+
       - uses: actions/upload-artifact@v4
         with:
           name: resume-pdf
@@ -82,7 +91,7 @@ jobs:
       #   - "[skip ci]" in the message stops this push retriggering the workflow
       #   - "git diff --quiet" skips the commit entirely when the PDF is
       #     byte-identical, so unrelated pushes don't create empty commits
-      - name: Commit compiled PDF to main
+      - name: Commit compiled PDF and preview to main
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           git config user.name  "github-actions[bot]"
@@ -90,15 +99,17 @@ jobs:
           # Re-anchor on the current tip before committing, so the push is always
           # a fast-forward. resume.pdf is tracked, so "reset --hard" would restore
           # the old one - keep the freshly built file outside the work tree first.
-          cp resume.pdf "$RUNNER_TEMP/resume.pdf"
+          cp resume.pdf docs/preview.png "$RUNNER_TEMP/"
           git fetch origin "$GITHUB_REF_NAME"
           git reset --hard "origin/$GITHUB_REF_NAME"
+          mkdir -p docs
           cp "$RUNNER_TEMP/resume.pdf" resume.pdf
-          git add -f resume.pdf
+          cp "$RUNNER_TEMP/preview.png" docs/preview.png
+          git add -f resume.pdf docs/preview.png
           if git diff --cached --quiet; then
-            echo "PDF unchanged - nothing to commit"
+            echo "PDF and preview unchanged - nothing to commit"
           else
-            git commit -m "build: update resume.pdf [skip ci]"
+            git commit -m "build: update resume.pdf and preview [skip ci]"
             git push origin "HEAD:$GITHUB_REF_NAME"
           fi
 
@@ -120,9 +131,16 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: resume-pdf
-      - name: Name the file after the tag
-        run: mv resume.pdf "Filipp_Lotsmanov_CV_${GITHUB_REF_NAME}.pdf"
+      # Two copies of the same file. The tagged name is the archive record; the
+      # constant name is what makes
+      #   .../releases/latest/download/Filipp_Lotsmanov_CV.pdf
+      # resolve, since that URL redirects by asset FILENAME and so breaks if the
+      # name moves with the tag. Paste the constant one into applications.
+      - name: Name the release assets
+        run: |
+          cp resume.pdf "Filipp_Lotsmanov_CV.pdf"
+          mv resume.pdf "Filipp_Lotsmanov_CV_${GITHUB_REF_NAME}.pdf"
       - uses: softprops/action-gh-release@v2
         with:
-          files: Filipp_Lotsmanov_CV_*.pdf
+          files: Filipp_Lotsmanov_CV*.pdf
           generate_release_notes: true

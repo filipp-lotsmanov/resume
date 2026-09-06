@@ -32,6 +32,10 @@ desktop.ini
 
 # ---- working images (previews, crops) ----
 *.png
+# ...except the README preview, which CI renders from the verified PDF and
+# commits alongside it. Negation works here because *.png matches files, not
+# the docs/ directory; ignoring a directory would make this line a no-op.
+!docs/preview.png
 
 # ---- compiled PDF ----
 # Listed here so local builds never show up in `git status`. The PDF is still
