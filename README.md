@@ -15,7 +15,7 @@ lotsmanov.filipp@gmail.com
   <img src="docs/preview.png" alt="Resume, page 1" width="760">
 </a>
 
-## How this is built
+## How this is built.
 
 The PDF is compiled from `resume.tex` by GitHub Actions on every push to `main`,
 then committed back to the repository, so the file above is always current with
