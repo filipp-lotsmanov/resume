@@ -88,7 +88,11 @@ jobs:
       # the current version at a stable URL. Guards:
       #   - only on a push to the main branch (never PRs, never tags: the
       #     release job owns the PDF on tags)
-      #   - "[skip ci]" in the message stops this push retriggering the workflow
+      #   - the push authenticates with GITHUB_TOKEN, which GitHub refuses to
+      #     let trigger further workflow runs, so this cannot loop. A
+      #     "[skip ci]" marker would be redundant on top of that, and it would
+      #     make main's tip untaggable: a tag pointing at this commit would
+      #     skip the whole run, so the release job would never fire.
       #   - "git diff --quiet" skips the commit entirely when the PDF is
       #     byte-identical, so unrelated pushes don't create empty commits
       - name: Commit compiled PDF and preview to main
@@ -109,7 +113,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "PDF and preview unchanged - nothing to commit"
           else
-            git commit -m "build: update resume.pdf and preview [skip ci]"
+            git commit -m "build: update resume.pdf and preview"
             git push origin "HEAD:$GITHUB_REF_NAME"
           fi
 
