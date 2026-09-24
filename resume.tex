@@ -67,13 +67,12 @@ Breda, The Netherlands \sep +31 6 10588609 \sep lotsmanov.filipp@gmail.com\\
 
 \section*{PROFILE}
 Third-year Applied Data Science \& AI student on the Data Scientist and Data
-Engineer tracks. I train vision, sequence and reinforcement learning models,
-measure them on held-out data, and deploy them for real-time and on-device
-inference.
+Engineer tracks. I train vision and sequence models, measure them on held-out
+data, and ship them behind real-time services.
 
 \section*{TECHNICAL SKILLS}
 \skillrow{Languages}{Python, Go, SQL}
-\skillrow{Frameworks}{PyTorch, TensorFlow, Hugging Face Transformers, Stable Baselines3, Keras}
+\skillrow{Frameworks}{PyTorch, TensorFlow, Hugging Face Transformers, Keras}
 \skillrow{Classical ML}{scikit-learn, XGBoost, statsmodels}
 \skillrow{Computer vision}{OpenCV, MediaPipe, torchvision, albumentations, U-Net}
 \skillrow{NLP \& speech}{SentencePiece/BPE, NLLB, faster-whisper, LangChain, FAISS}
@@ -83,39 +82,30 @@ inference.
 
 \section*{PROJECTS \& TECHNICAL WORK}
 
-\entry{Autonomous Root Inoculation}{Nov 2025 -- Jan 2026}{Individual Project, BUas}{}
+\entry{Plant Segmentation MLOps Platform}{Feb -- Jun 2026}{Team of 5, BUas -- NPEC}{}
 \begin{itemize}
-  \item CV and control system driving a lab robot to inoculate plant root tips:
-        U-Net segmentation with geodesic root-length measurement cut error from
-        37.6\% to 10.7\% sMAPE (Kaggle private leaderboard).
-  \item Benchmarked a PID controller (0.011--0.031 mm error) against a PPO agent
-        (\textasciitilde{}99\% at 1 mm); integrated pipeline hit 100\% success
-        across 50 targets at 0.646 mm mean accuracy.
+  \item Airflow orchestration and Azure ML pipelines behind a U-Net
+        root-segmentation service: six DAGs for preprocessing, hyperparameter
+        search and feedback-driven retraining with champion-challenger promotion.
+  \item Owned most of the \texttt{cv-pipeline} package (inference, training, CLI)
+        served through FastAPI; 0.8371 test F1 / 0.7199 IoU on 20,512 held-out
+        patches, 85\% coverage floor enforced in CI.
 \end{itemize}
 
 \entry{Video Emotion Classification Pipeline}{Sep -- Nov 2025}{Group Project -- Media Client}{}
 \begin{itemize}
-  % model name is officially DeBERTa-v2 (lowercase v) if you want it corrected
   \item Nine-stage video-to-emotion-timeline system for an external client brief;
-        fine-tuned DeBERTa-V2 on 428K samples to 0.8127 macro F1 held-out and
-        0.8865 on the external CARER benchmark.
+        fine-tuned DeBERTa-v3-base on 419,180 samples to 0.8162 macro F1
+        (0.9202 accuracy) on a 62,862-sample held-out set.
   \item Built a Transformer encoder-decoder from scratch; owned the transcription
         and scene-detection stages.
 \end{itemize}
 
-% =========================== ADD BLOCK D ENTRY HERE ===========================
-% \entry{<project name>}{Feb -- Jun 2026}{Group Project, BUas -- NPEC}{}
-% \begin{itemize}
-%   \item <bullet>
-%   \item <bullet>
-% \end{itemize}
-% ==============================================================================
-
 \entry{NGT Sign Language Learning Platform}{Jan -- Apr 2026}{Group Project, BUas}{}
 \begin{itemize}
   \item Real-time browser app teaching the Dutch fingerspelling alphabet:
-        ResidualMLP over 25 static classes at \textasciitilde{}95\% validation
-        accuracy, BiLSTM for dynamic letters at \textasciitilde{}92\%.
+        ResidualMLP over 25 static classes (24 letters plus a nonsense class)
+        and a BiLSTM over 30-frame sequences for the dynamic letters J and Z.
   \item Served both models over a FastAPI WebSocket endpoint on MediaPipe hand
         landmarks, with per-letter model routing.
 \end{itemize}
@@ -123,9 +113,9 @@ inference.
 \entry{Concurrent ETL Pipeline in Go}{May -- Aug 2026}{Personal Project}{}
 \begin{itemize}
   \item Streaming CSV-into-PostgreSQL pipeline: 2.8--5.2 MB heap across a 2.3 GB,
-        27.6M-record file at \textasciitilde{}45k rec/sec.
-  \item 4.76\texttimes{} enrichment throughput via a goroutine worker pool;
-        live-Postgres tests gate the Docker build and CI.
+        27.6M-record file at \textasciitilde{}41k rec/sec.
+  \item 4.76\texttimes{} enrichment throughput on 14 cores via a goroutine worker
+        pool; live-Postgres tests gate the Docker build and CI.
 \end{itemize}
 
 \section*{COMPETITIONS}
@@ -133,10 +123,10 @@ inference.
 \entry{BrabantHack 2026 -- Winner, DEMCON Deep Tech Track}{Apr 2026}{Team of 3}{}
 \begin{itemize}
   \item Predicted off-screen pedestrian positions from shadow imagery alone:
-        PyTorch ResNet-50 backbone fused with 19 hand-crafted geometric features,
-        reaching IoU 0.626 on the hidden test set.
-  \item Iterated 0.52 $\rightarrow$ 0.626 IoU on \textasciitilde{}11-min training
-        runs, delivering a TorchScript + FastAPI demo in the hackathon window.
+        PyTorch ResNet-50 fused with 19 hand-crafted geometric features, iterating
+        0.52 $\rightarrow$ \textasciitilde{}0.62 IoU on \textasciitilde{}11-min runs.
+  \item Winning submission scored IoU 0.626, a weighted blend of three team
+        members' models; shipped a TorchScript + FastAPI demo in the window.
 \end{itemize}
 
 \entry{HERE Turn-Restriction Validation Challenge}{May 2026}{Team of 3}{}
