@@ -24,6 +24,10 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Without this the job inherits GitHub's 360-minute default, so a degraded
+    # apt mirror hangs for six hours instead of failing. 15 is the retry budget
+    # below (~12.3 min worst case) plus the ~1 min the rest of the build takes.
+    timeout-minutes: 15
     permissions:
       contents: write        # needed for the commit-PDF step below
     steps:
@@ -34,16 +38,40 @@ jobs:
       # texlive-latex-base but the Charter Type 1 binaries (bchr8a.pfb) ship
       # here. Without it the build succeeds and silently falls back to
       # Computer Modern - which the font-family check would then catch.
+      #
+      # Bounded and retried: the ~95 MB comes from azure.archive.ubuntu.com,
+      # whose backends degrade intermittently. Acquire::http::Timeout cannot
+      # catch that - it is an inactivity timer and resets on every byte, so a
+      # 5 KB/s trickle never trips it. Only an external wall-clock cap does.
+      # "sudo timeout", not "timeout sudo": the latter signals sudo and leaves
+      # the root-owned apt-get child orphaned while still holding the dpkg
+      # lock, which poisons every retry.
+      # No apt-get clean between attempts, deliberately: a SIGTERMed download
+      # leaves files in /var/cache/apt/archives/partial and apt resumes them
+      # via HTTP range requests, so cleaning would restart from zero.
       - name: Install TeX Live
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            latexmk \
-            texlive-latex-base \
-            texlive-latex-recommended \
-            texlive-latex-extra \
-            texlive-fonts-recommended \
-            poppler-utils
+          set -uo pipefail
+          install_texlive() {
+            sudo timeout 60 apt-get update -o Acquire::Retries=3 || return 1
+            sudo timeout 180 apt-get install -y --no-install-recommends \
+              -o Acquire::Retries=3 \
+              latexmk \
+              texlive-latex-base \
+              texlive-latex-recommended \
+              texlive-latex-extra \
+              texlive-fonts-recommended \
+              poppler-utils || return 1
+          }
+          for attempt in 1 2 3; do
+            if install_texlive; then
+              exit 0
+            fi
+            echo "::warning::apt attempt ${attempt}/3 failed or timed out"
+            sleep 10
+          done
+          echo "::error::TeX Live install failed after 3 attempts"
+          exit 1
 
       - name: Assert font binaries are present
         run: kpsewhich bchr8a.pfb
@@ -129,6 +157,7 @@ jobs:
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       contents: write
     steps:
