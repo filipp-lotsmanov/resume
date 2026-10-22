@@ -75,9 +75,9 @@ data, and ship them behind real-time services.
 \skillrow{Frameworks}{PyTorch, TensorFlow, Hugging Face Transformers, Keras}
 \skillrow{Classical ML}{scikit-learn, XGBoost, statsmodels}
 \skillrow{Computer vision}{OpenCV, MediaPipe, torchvision, albumentations, U-Net}
-\skillrow{NLP \& speech}{SentencePiece/BPE, NLLB, faster-whisper, LangChain, FAISS}
+\skillrow{NLP \& LLMs}{SentencePiece/BPE, NLLB, faster-whisper, Amazon Bedrock, RAG, LangChain, FAISS}
 \skillrow{Optimisation \& serving}{TorchScript, quantisation, mixed-precision, FastAPI, Ollama, NVIDIA Jetson}
-\skillrow{MLOps \& infra}{MLflow, ClearML, Docker, Kubernetes, Azure, GitHub Actions, Airflow, Prometheus, Git, Portainer}
+\skillrow{MLOps \& infra}{MLflow, ClearML, Docker, Kubernetes, Azure, AWS, Terraform, GitHub Actions, Airflow, Prometheus}
 \skillrow{Data \& analysis}{PostgreSQL, pandas, NumPy, GeoPandas, Shapely, Power BI}
 
 \section*{PROJECTS \& TECHNICAL WORK}
@@ -101,20 +101,23 @@ data, and ship them behind real-time services.
         and scene-detection stages.
 \end{itemize}
 
-\entry{NGT Sign Language Learning Platform}{Jan -- Apr 2026}{Group Project, BUas}{}
+\entry{Grounded Q\&A on AWS Bedrock}{Sep -- Oct 2026}{Personal Project}{}
 \begin{itemize}
-  \item Real-time browser app teaching the Dutch fingerspelling alphabet:
-        ResidualMLP over 25 static classes (24 letters plus a nonsense class)
-        and a BiLSTM over 30-frame sequences for the dynamic letters J and Z.
-  \item Served both models over a FastAPI WebSocket endpoint on MediaPipe hand
-        landmarks, with per-letter model routing.
+  \item Built a serverless RAG service over 10 research papers that cites a source
+        for every answer, declines out-of-scope questions (7/7 in evaluation) and
+        costs about \$0.001 per question.
+  \item Integrated JWT authentication (Cognito sign-in, PKCE), request throttling
+        and email budget alerts.
+  \item Built an evaluation harness for retrieval, refusals and citations, and
+        stress-tested the LLM judge with seeded errors, documenting 3 wrong answers
+        that every metric passed.
 \end{itemize}
 
 \entry{Concurrent ETL Pipeline in Go}{May -- Aug 2026}{Personal Project}{}
 \begin{itemize}
   \item Streaming CSV-into-PostgreSQL pipeline: 2.8--5.2 MB heap across a 2.3 GB,
         27.6M-record file at \textasciitilde{}41k rec/sec.
-  \item 4.76\texttimes{} enrichment throughput on 14 cores via a goroutine worker
+  \item 4.76\texttimes{} enrichment speedup on 14 cores via a goroutine worker
         pool; live-Postgres tests gate the Docker build and CI.
 \end{itemize}
 
@@ -125,8 +128,8 @@ data, and ship them behind real-time services.
   \item Predicted off-screen pedestrian positions from shadow imagery alone:
         PyTorch ResNet-50 fused with 19 hand-crafted geometric features, iterating
         0.52 $\rightarrow$ \textasciitilde{}0.62 IoU on \textasciitilde{}11-min runs.
-  \item Winning submission scored IoU 0.626, a weighted blend of three team
-        members' models; shipped a TorchScript + FastAPI demo in the window.
+  \item Winning IoU 0.626 came from a weighted blend of three members' models;
+        shipped a TorchScript + FastAPI demo.
 \end{itemize}
 
 \entry{HERE Turn-Restriction Validation Challenge}{May 2026}{Team of 3}{}
